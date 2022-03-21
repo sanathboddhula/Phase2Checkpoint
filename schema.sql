@@ -22,7 +22,8 @@ quantity integer, PRIMARY KEY(seller_email, listing_id));
 #FOREIGN KEY(seller_email) REFERENCES Sellers(email), FOREIGN KEY(category) REFERENCES Categories(category_name)
 
 CREATE TABLE Orders(transaction_id integer, seller_email varchar(20), listing_id integer, buyer_email varchar(20), date varchar(20), quantity integer, payment decimal, PRIMARY KEY(transaction_id),
-FOREIGN KEY(seller_email) REFERENCES Product_Listings(seller_email), FOREIGN KEY(listing_id) REFERENCES Product_Listings(seller_email), FOREIGN KEY(buyer_email) REFERENCES Buyers(email));
+FOREIGN KEY(seller_email, listing_id) REFERENCES Product_Listings(seller_email, listing_id),
+FOREIGN KEY(buyer_email) REFERENCES Buyers(email));
 
 CREATE TABLE Reviews(buyer_email varchar(20), seller_email varchar(20), listing_id integer, review_desc varchar(50), PRIMARY KEY(buyer_email, seller_email, listing_id),
 FOREIGN KEY(buyer_email) REFERENCES Buyers(email), FOREIGN KEY(seller_email, listing_id) REFERENCES Product_Listings(seller_email, listing_id));
