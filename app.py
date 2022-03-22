@@ -1,14 +1,52 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import sqlite3 as sql
 import pandas as pd
+import os
+import hashlib
 
 app = Flask(__name__)
 
 host = 'http://127.0.0.1:5000/'
 
-@app.route('/')
+salt = os.urandom(32)
+password = 'example'
+
+key =  hashlib.pbkdf2_hmac(
+    'sha256', # The hash digest algorithm for HMAC
+    password.encode('utf-8'), # Convert the password to bytes
+    salt, # Provide the salt
+    100000, # It is recommended to use at least 100,000 iterations of SHA-256
+    dklen=128 #Get a 128 byte key
+)
+
+storage = salt + key
+
+salt_storage = storage[:32]
+key_storage = storage[:32]
+
+
+@app.route('/', methods=['POST', 'GET'])
 def index():
+    if request.method == 'POST':
+        email = request.form['Email']
+        password = request.form['Password']
+        credentials = checkCredentials(email, password)
+        if credentials:
+            print('Successful Login')
+        elif credentials == False:
+            print('Failed to Login')
+        return redirect('/')
     return render_template('index.html')
+
+def checkCredentials(email, password):
+    connection = sql.connect('database.db')
+    cursor = connection.execute('Select * FROM Users u WHERE u.email = ? AND u.password = ?', (email, password, ))
+
+    #credentials do not exist
+    if cursor.fetchall() == 0:
+        return False
+    elif cursor.fetchall() == 1:
+        return True
 
 #create load_address
 def createDatabases():
@@ -19,7 +57,7 @@ def createDatabases():
     cursor = connection.cursor()
 
     # create load_users
-    connection.execute('CREATE TABLE IF NOT EXISTS Users(email varchar(20),password varchar(20), PRIMARY KEY(email));')
+    connection.execute('CREATE TABLE IF NOT EXISTS Users(email text,password text, PRIMARY KEY(email));')
 
     # create zipcode_info
     connection.execute(
@@ -81,6 +119,8 @@ def createDatabases():
                 'FOREIGN KEY(seller_email) REFERENCES Sellers(email));')
 
     connection.commit()
+    #cursor.execute('Select * FROM Ratings')
+    #print(cursor.fetchall())
 
 
 def load_data():
