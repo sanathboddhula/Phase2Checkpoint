@@ -11,17 +11,21 @@ app = Flask(__name__)
 host = 'http://127.0.0.1:5000/'
 connection = sql.connect('database.db')
 
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    stringVal = ""
     if request.method == 'POST':
         credentials = checkCredentials(request.form['Email'], request.form['Password'])
         if credentials:
             print('Successful Login')
+            stringVal = "success"
             #return render_template('index.html')
         elif credentials == False:
             print('Failed to Login')
-        return redirect('/')
-    return render_template('index.html')
+            stringVal = "failure"
+        return render_template('index.html', stringVal = stringVal)
+    return render_template('index.html' )
 
 #check user input password with database password
 def checkPasswords(userPassword, dbPassword):
@@ -35,10 +39,7 @@ def checkPasswords(userPassword, dbPassword):
      #   return True
     #else:
      #   return False
-
-    if(userPassword == dbPassword):
-        return True
-    return False
+    return (userPassword == dbPassword)
 
 def checkCredentials(email, passwordUser):
     connection = sql.connect('database.db')
@@ -47,14 +48,14 @@ def checkCredentials(email, passwordUser):
     print(cur.fetchall())
     #cursor = connection.execute('Select password FROM Users u WHERE u.email = ?;', (email))
     cursor = connection.execute('Select password FROM Users u WHERE u.ï»¿email = ?;', (email,))
-
+    singularPasswordDB = cursor.fetchone()
     # if email does not exist --> return False
-    if(cursor.fetchone() == None):
-        return False
-    singularPasswordDB = cursor.fetchone() #the password for an email (pre-hash)
+    if(singularPasswordDB == None):
+        return False #the password for an email (pre-hash)
     print(singularPasswordDB)
+    return checkPasswords(passwordUser, singularPasswordDB[0])
 
-    return checkPasswords(passwordUser, singularPasswordDB)
+
 
 #create load_address
 def createDatabases():
