@@ -32,13 +32,14 @@ def checkPasswords(userPassword, dbPassword):
     #password in db is not hashed
     #user entry not hashed
     #if success --> hash
-    #salt = uuid.uuid4().hex
-    #hashed = hashlib.sha3_256(salt.encode() + userPassword.encode()).hexdigest()
+    #password = userPassword
+    #password2 = dbPassword
 
-    #if(hashed == dbPassword):
-     #   return True
-    #else:
-     #   return False
+    #salt = uuid.uuid4().hex
+    #hashed = hashlib.sha3_256(salt.encode() + password.encode()).hexdigest()
+    #hashed2 = hashlib.sha3_256(salt.encode() + password2.encode()).hexdigest()
+
+    #return (hashed == dbPassword)
     return (userPassword == dbPassword)
 
 def checkCredentials(email, passwordUser):
