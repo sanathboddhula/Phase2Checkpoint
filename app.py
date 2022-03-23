@@ -68,9 +68,7 @@ def createDatabases():
 
     # create load_users
     connection.execute('CREATE TABLE IF NOT EXISTS Users(email TEXT, password TEXT, PRIMARY KEY(email));')
-    #cursor.execute('SELECT * FROM USERS')
-    #names = list(map(lambda x: x[0], cursor.description))
-    #print(names)
+
 
     # create zipcode_info
     connection.execute(
@@ -188,10 +186,6 @@ def load_data():
         val.to_sql('Ratings', connection, if_exists="replace", index=False)
 
     connection.commit()
-    #cur = connection.cursor()
-    #cur.execute("Select email FROM Users")
-    #print(cur.fetchall())
-
 
 createDatabases()
 load_data()
