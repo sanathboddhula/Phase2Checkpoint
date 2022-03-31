@@ -1,5 +1,4 @@
 import uuid
-
 from flask import Flask, render_template, request, redirect
 import sqlite3 as sql
 import pandas as pd
@@ -18,14 +17,24 @@ def index():
     if request.method == 'POST':
         credentials = checkCredentials(request.form['Email'], request.form['Password'])
         if credentials:
-            print('Successful Login')
             stringVal = "success"
-            #return render_template('index.html')
+            return redirect('/success')
         elif credentials == False:
-            print('Failed to Login')
             stringVal = "failure"
-        return render_template('index.html', stringVal = stringVal)
-    return render_template('index.html' )
+    return render_template('index.html')
+
+@app.route('/success', methods = ['POST', 'GET'])
+def loginSuccess():
+    error = None
+
+    #check if user clicked checking Info Button
+        # if so --> redirect to checkingInfo
+
+    return render_template('authenticated.html', error = error)
+
+@app.route('/checkinginfo', methods = ['POST', 'GET'])
+def checkingInfoView():
+    return render_template('checking_info.html')
 
 #check user input password with database password
 def checkPasswords(userPassword, dbPassword):
@@ -60,6 +69,9 @@ def checkCredentials(email, passwordUser):
 
 #create load_address
 def createDatabases():
+    #a+ open for reading and writing, file created if does not exist
+    #if does exist --> pass
+    #if doesn't exist --> create
     with open('database.db', 'a+') as d:
         pass
 
@@ -143,6 +155,9 @@ def load_data():
 
     with open('Zipcode_Info.csv', 'r') as tbl:
         val = pd.read_csv(tbl)
+        #connection means getting connection
+        #if_exists --> if table already exists, drop it and create new one
+        #index = false refers to renaming the column
         val.to_sql('Zipcode_Info', connection, if_exists="replace", index=False)
 
     with open('Address.csv', 'r') as tbl:
