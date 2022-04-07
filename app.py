@@ -10,7 +10,6 @@ app = Flask(__name__)
 host = 'http://127.0.0.1:5000/'
 connection = sql.connect('database.db')
 
-
 @app.route('/', methods=['POST', 'GET'])
 def index():
     stringVal = ""
@@ -26,14 +25,16 @@ def index():
 @app.route('/success', methods = ['POST', 'GET'])
 def loginSuccess():
     error = None
-
-    #check if user clicked checking Info Button
-        # if so --> redirect to checkingInfo
+    if request.method == 'POST':
+        redirect('/checkingInfo')
 
     return render_template('authenticated.html', error = error)
 
 @app.route('/checkinginfo', methods = ['POST', 'GET'])
-def checkingInfoView():
+def checkingInfoView(emailAddress, password):
+    cur = connection.cursor()
+    cur.execute("Select name, emailID, age, gender, emailAddress, homeAddress, billingAddress, creditCard FROM Users WHERE "
+                "u.ï»¿email = ? AND password = ?", (emailAddress, password,))
     return render_template('checking_info.html')
 
 #check user input password with database password
@@ -64,8 +65,6 @@ def checkCredentials(email, passwordUser):
         return False #the password for an email (pre-hash)
     print(singularPasswordDB)
     return checkPasswords(passwordUser, singularPasswordDB[0])
-
-
 
 #create load_address
 def createDatabases():
