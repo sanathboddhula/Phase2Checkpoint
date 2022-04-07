@@ -8,12 +8,17 @@ import hashlib
 app = Flask(__name__)
 
 host = 'http://127.0.0.1:5000/'
-connection = sql.connect('database.db')
+#connection = sql.connect('database.db')
+userNameGlobal = ""
+passwordGlobal =""
+
+userNameGlobal2 = "tdoveston1@nsu.edu"
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
     stringVal = ""
     if request.method == 'POST':
+        userNameGlobal, passwordGlobal = request.form['Email'], request.form['Password']
         credentials = checkCredentials(request.form['Email'], request.form['Password'])
         if credentials:
             stringVal = "success"
@@ -31,11 +36,25 @@ def loginSuccess():
     return render_template('authenticated.html', error = error)
 
 @app.route('/checkinginfo', methods = ['POST', 'GET'])
-def checkingInfoView(emailAddress, password):
-    cur = connection.cursor()
-    cur.execute("Select name, emailID, age, gender, emailAddress, homeAddress, billingAddress, creditCard FROM Users WHERE "
-                "u.ï»¿email = ? AND password = ?", (emailAddress, password,))
-    return render_template('checking_info.html')
+def checkingInfoView():
+    #cur = connection.cursor()
+    #name, emailID, age, gender, emailAddress, home address, billing address, last 4 digits Credit Card
+    connection = sql.connect('database.db')
+    cur = connection.execute('SELECT b.first_name, b.last_name, b.ï»¿email, b.gender, b.age, a.zipcode, a.street_num, a.street_name, a2.zipcode, a2.street_num, a2.street_name FROM Buyers b,Address a, Address a2  WHERE b.ï»¿email = ? AND '
+                             'b.home_address_id = a.ï»¿address_id AND b.billing_address_id = a2.ï»¿address_id', (userNameGlobal2,))
+    firstSetInfo = cur.fetchall()
+
+    cur2 = connection.execute('Select * From Address')
+    secondSetInfo = cur2.fetchone()
+    #print(list(map(lambda x: x[0], cur.description)))
+    #ï»¿
+    #connection.commit()
+
+    return render_template('checking_info.html', firstSetInfo = firstSetInfo, secondSetInfo = secondSetInfo)
+
+#design checkinginfo html
+#checkingInfoView --> get user information
+    #email, password
 
 #check user input password with database password
 def checkPasswords(userPassword, dbPassword):
